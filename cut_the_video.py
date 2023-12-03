@@ -33,7 +33,8 @@ def cut_head_tail(original_video,output_file,cut_head="00:00:00",cut_tail="00:50
         '-i', original_video,
         '-ss', cut_head,
         '-to', cut_tail,
-        '-c', 'copy',
+        '-c:v','libx264',
+         '-c:a', 'copy',
         output_file
     ]
     
@@ -90,6 +91,17 @@ def cut_in_2_pieces(input_file, timestamp, head_output, tail_output):
     except subprocess.CalledProcessError as e:
         print(f"An error occurred: {e}")
 
+# %%
+def cut_between_pieces(input_file,output_file,cut_head,cut_tail):
+
+    # -ss = ab dort; -to = bis dort
+    command = ['ffmpeg', '-i', input_file, '-to', cut_head, '-c', 'copy', head_output]
+    command = ['ffmpeg', '-i', input_file, '-to', cut_tail, '-c', 'copy', tail_output]
+    
+    try:
+        subprocess.run(command,check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"An error occurred: {e}")
 
 # %%
 def get_standbild(input_file,output_file,cut_head):
