@@ -20,6 +20,7 @@ def clean_the_data(df):
     df.columns = df.columns.str.lower()
     df.columns = df.columns.str.replace(" ", "_")
     df.columns = df.columns.str.strip()
+    df = df.astype(str)
     print("Table Columns cleaned")
     return df
 
@@ -89,17 +90,6 @@ def cut_in_2_pieces(input_file, timestamp, head_output, tail_output):
     except subprocess.CalledProcessError as e:
         print(f"An error occurred: {e}")
 
-# %%
-def cut_between_pieces(input_file,output_file,cut_head,cut_tail):
-
-    # -ss = ab dort; -to = bis dort
-    command = ['ffmpeg', '-i', input_file, '-to', cut_head, '-c', 'copy', head_output]
-    command = ['ffmpeg', '-i', input_file, '-to', cut_tail, '-c', 'copy', tail_output]
-    
-    try:
-        subprocess.run(command,check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"An error occurred: {e}")
 
 # %%
 def get_standbild(input_file,output_file,cut_head):
@@ -316,7 +306,7 @@ try:
         else:
             input_file = f"{video_name.split(".")[0]}_endprodukt_trimmed.mp4"
 
-        timestamp = video_schnitt_df["rausschneiden_ab"][idx]
+        timestamp = str(video_schnitt_df["rausschneiden_ab"][idx])
         output_file = f"{video_name.split(".")[0]}_head.mp4"
 
         get_head(input_file,output_file,timestamp)
