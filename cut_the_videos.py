@@ -69,7 +69,7 @@ def get_tail(input_file,output_file,timestamp):
 def get_head(input_file,output_file,timestamp):
 
     # -ss = output ab dort; -to = output bis dort 
-    command = ['ffmpeg', '-i', input_file, '-ss', timestamp, '-c:v', 'libx264', '-c:a', 'copy', output_file]
+    command = ['ffmpeg', '-i', input_file, '-to', timestamp, '-c:v', 'libx264', '-c:a', 'copy', output_file]
 
     # Execute the commands
     try:
@@ -208,7 +208,7 @@ try:
         if str(cut_tail) == "nan":
             cut_tail = "00:40:00" # could be adjustet with get duration function
     
-        print(video_name,cut_head, cut_tail)
+        print("input name:",video_name,"Schnittpunkte:", cut_head, cut_tail)
         cut_head_tail(video_name, output_file, cut_head, cut_tail)
 except Exception as error:
     print("An error occurred:", error)
@@ -284,6 +284,7 @@ except Exception as error:
 try:
     for idx, video_name in video_schnitt_df["dateiname"].items():
 
+        
         #define input for the text file with the videos we want to concat
         video1 = f"{video_name.split('.')[0]}_merged_start.mp4"
         video2 = video_name
@@ -307,20 +308,39 @@ except Exception as error:
 
 # %%
 #Get Head
+
 try:
     for idx, video_name in video_schnitt_df["dateiname"].items():
+        if video_schnitt_df["rausschneiden_ab"][idx] == "nan":
+            continue
 
         #Logik da nicht alle Videos vorher beschnitten sein müssen
         if all(str(video_schnitt_df[col][idx]) == "nan" for col in ["vorne_abschneiden_bis", "hinten_abschneiden_ab", "vorne_bild_durch_standbild_ersetzen_bis"]):
             input_file = video_name
-        elif str(video_schnitt_df["vorne_bild_durch_standbild_ersetzen_bis"][idx]) == "nan":
-            input_file = f"{video_name.split('.')[0]}_ohne_start_ende.mp4"
-        else:
+
+        elif video_schnitt_df["vorne_bild_durch_standbild_ersetzen_bis"][idx] != "nan":
             input_file = f"{video_name.split('.')[0]}_endprodukt_trimmed.mp4"
 
-        timestamp = str(video_schnitt_df["rausschneiden_ab"][idx])
+        else:
+            input_file = f"{video_name.split('.')[0]}_ohne_start_ende.mp4"
+        
+        #Logik für berechnung der Zeiten
+        if video_schnitt_df["vorne_abschneiden_bis"][idx] != "nan" or video_schnitt_df["hinten_abschneiden_ab"][idx] != "nan":
+            if video_schnitt_df["vorne_abschneiden_bis"][idx] == "nan":
+                cut_head = "00:00:00"
+            else:
+                cut_head = video_schnitt_df["vorne_abschneiden_bis"][idx]
+        
+            timedelta = video_schnitt_df["rausschneiden_ab"][idx] - pd.to_timedelta(cut_head)
+            dummy_date = pd.Timestamp('1900-01-01')
+            new_timestamp = dummy_date + timedelta
+            timestamp = new_timestamp.strftime('%H:%M:%S.%f')[:-3]
+        else:
+            timestamp = video_schnitt_df["rausschneiden_ab"][idx] 
+        
         output_file = f"{video_name.split('.')[0]}_head.mp4"
 
+        print("input_name:",input_file, "Schnittpunkt:", timestamp)
         get_head(input_file,output_file,timestamp)
         
         continue
@@ -331,7 +351,9 @@ except Exception as error:
 #Get Tail
 try:
     for idx, video_name in video_schnitt_df["dateiname"].items():
-
+        if video_schnitt_df["rausschneiden_ab"][idx] == "nan":
+            continue
+        
         #Logik da nicht alle Videos vorher beschnitten sein müssen
         if all(str(video_schnitt_df[col][idx]) == "nan" for col in ["vorne_abschneiden_bis", "hinten_abschneiden_ab", "vorne_bild_durch_standbild_ersetzen_bis"]):
             input_file = video_name
@@ -340,9 +362,24 @@ try:
         else:
             input_file = f"{video_name.split('.')[0]}_endprodukt_trimmed.mp4"
 
-        timestamp = video_schnitt_df["rausschneiden_bis"][idx]
+        #Logik für berechnung der Zeiten
+        if video_schnitt_df["vorne_abschneiden_bis"][idx] != "nan" or video_schnitt_df["hinten_abschneiden_ab"][idx] != "nan":
+            if video_schnitt_df["vorne_abschneiden_bis"][idx] == "nan":
+                cut_head = "00:00:00"
+            else:
+                cut_head = video_schnitt_df["vorne_abschneiden_bis"][idx]
+        
+            timedelta = video_schnitt_df["rausschneiden_bis"][idx] - pd.to_timedelta(cut_head)
+            dummy_date = pd.Timestamp('1900-01-01')
+            new_timestamp = dummy_date + timedelta
+            timestamp = new_timestamp.strftime('%H:%M:%S.%f')[:-3]
+        else:
+            timestamp = video_schnitt_df["rausschneiden_bis"][idx] 
+          
+            
         output_file = f"{video_name.split('.')[0]}_tail.mp4"
-
+        
+        print("input_name:",input_file, "Schnittpunkt:", timestamp)
         get_tail(input_file,output_file,timestamp)
         
         continue
@@ -376,57 +413,10 @@ except Exception as error:
 # # Cut in pieces
 
 # %%
-for idx, video_name in video_schnitt_df["dateiname"].items():
-    cut_time = video_schnitt_df["schnitt_setzen_bei"][idx]
-    head_output = f"{video_name}_head_piece.mp4"
-    tail_output = f"{video_name}_tail_piece.mp4"
-    cut_in_pieces(video_name,cut_time,head_output,tail_output)
-
-# %%
-# videos need to be in same directory with python script
-for idx, video_name in video_schnitt_df["dateiname"].items():
-    output_file = f"{video_name}_standbild.mp4"
-    cut_time = video_schnitt_df["vorne_bild_durch_standbild_ersetzen_bis"][idx]
-
-# %%
-
-# Your time string
-time_str = "00:00:00.000"
-
-# Convert to Pandas Timedelta
-time_delta = pd.to_timedelta(time_str)
-
-# Add one millisecond
-new_time_delta = time_delta + pd.Timedelta(milliseconds=1)
-
-# Convert Timedelta to Timestamp for formatting (using a dummy date)
-dummy_date = pd.Timestamp('1900-01-01')
-new_timestamp = dummy_date + new_time_delta
-
-# Format to "HH:MM:SS.fff"
-new_time_str = new_timestamp.strftime('%H:%M:%S.%f')[:-3]
-
-new_time_str
-
-
-# %%
-video_schnitt_df["vorne_bild_durch_standbild_ersetzen_bis"][0]
-
-
-# %%
-duration = pd.to_datetime(get_video_duration("Video.mp4")).strftime('%H:%M:%S.%f')[:-3]
-duration = duration + duration
-
-# %%
-start_time = pd.to_datetime("00:00:10").strftime('%H:%M:%S.%f')[:-3]
-end_time = pd.to_datetime("00:00:15").strftime('%H:%M:%S.%f')[:-3]
-
-# %%
-start_time = pd.to_datetime("00:00:10").strftime('%H:%M:%S.%f')[:-3]
-end_time = pd.to_datetime("00:00:15").strftime('%H:%M:%S.%f')[:-3]
-result = start_time + pd.to_timedelta(end_time) 
-
-# %%
-get_video_duration("Video.mp4")
+# for idx, video_name in video_schnitt_df["dateiname"].items():
+#     cut_time = video_schnitt_df["schnitt_setzen_bei"][idx]
+#     head_output = f"{video_name}_head_piece.mp4"
+#     tail_output = f"{video_name}_tail_piece.mp4"
+#     cut_in_pieces(video_name,cut_time,head_output,tail_output)
 
 
