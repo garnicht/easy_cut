@@ -1,2 +1,0 @@
-file 'video2_head.mp4'
-file 'video2_tail.mp4'

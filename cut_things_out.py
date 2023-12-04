@@ -96,10 +96,13 @@ video_schnitt_df = clean_the_data(video_schnitt_df)
 try:
     # videos need to be in same directory with python script
     for idx, video_name in video_schnitt_df["dateiname"].items():
-        if video_schnitt_df["cut2_ab"][idx] == "nan":
-            continue
         
         columns_to_cut = ["vorne_abschneiden_bis","rausschneiden_ab","rausschneiden_bis","cut2_ab","cut2_bis","cut3_ab","cut3_bis","cut4_ab","cut4_bis","cut5_ab","cut5_bis"]
+
+        parts_list = []
+        video1 = 0
+        video2 = 0
+
         try:
             for i,col in enumerate(columns_to_cut):
                 cut_head = video_schnitt_df[col][idx]
@@ -115,8 +118,31 @@ try:
 
                 output_file = f"{video_name.split('.')[0]}_part{i}.mp4"
                 
-                print("video name:",video_name,"column:",col,"schnittpunkte:",cut_head,cut_tail,"output:",output_file)
                 cut_head_tail(video_name, output_file, cut_head, cut_tail)
+
+                if i not in [1, 3, 5, 7, 9]:
+                    parts_list.append(output_file)
+
+                if len(parts_list) == 2:
+                    video1 = parts_list[0]
+                    video2 = parts_list[1]
+                    
+                    textfile_content = f"file '{video1}'\nfile '{video2}'"
+
+                    #create the file with content
+                    with open('dummy.txt', 'w') as textfile:
+                        textfile.write(textfile_content)
+
+                    #define parameters for concat function
+                    textfile_name = "dummy.txt"
+
+                    output_file = f"{video_name.split('.')[0]}_concatted{i}.mp4"
+                    
+                    parts_list.clear()
+                    parts_list.append(output_file)
+                    print(textfile_content, "output:", output_file)
+                    concatenate_videos(textfile_name,output_file)                
+
         except:
             print("skip to next video")
 
@@ -144,7 +170,7 @@ for filename in os.listdir():
 
 # %%
 for filename in os.listdir(path_script_output):
-    if filename.find or filename.find("part"):
+    if filename.find("concatted"):
         src = f"script_output/{filename}"
         shutil.move(src,path_folder_parts)
 
