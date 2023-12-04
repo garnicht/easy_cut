@@ -1,6 +1,8 @@
 # %%
 import pandas as pd
 import subprocess
+import os
+import shutil
 
 # %%
 def get_the_table_data():
@@ -132,6 +134,15 @@ def get_standbild(input_file,output_file,cut_head):
         subprocess.run(command, check=True)
     except subprocess.CalledProcessError as e:
         print(f"An error occurred: {e}")
+
+# %%
+def create_folder(folder_name):
+    try:
+        # Create a new folder in the current working directory
+        os.mkdir(folder_name)
+        print(f"Folder '{folder_name}' created successfully.")
+    except FileExistsError:
+        print(f"Folder '{folder_name}' already exists.")
 
 # %%
 def merge_audio_and_video(video_file,audio_file,output_file):
@@ -408,6 +419,34 @@ try:
         
 except Exception as error:
     print("An error occured:", error)
+
+# %% [markdown]
+# # Create folder and put all new created files into this folder
+
+# %%
+path_script_output = "script_output"
+create_folder(path_script_output)
+
+path_folder_endprodukte = "script_output/endprodukte"
+create_folder(path_folder_endprodukte)
+
+# %%
+original_video_names = list()
+
+for video_name in video_schnitt_df["dateiname"]:
+    if video_name != "nan":
+        original_video_names.append(video_name)
+
+# %%
+for filename in os.listdir():
+    if filename.endswith(".mp4") and filename not in original_video_names:
+        shutil.move(filename,path_script_output)
+
+# %%
+for filename in os.listdir(path_script_output):
+    if filename.endswith("_endprodukt_remove_and_concat.mp4") or filename.endswith("_ohne_start_ende.mp4") or filename.endswith("_endprodukt_trimmed.mp4"):
+        src = f"script_output/{filename}"
+        shutil.move(src,path_folder_endprodukte)
 
 # %% [markdown]
 # # Cut in pieces
