@@ -1,8 +1,21 @@
 # %%
+#Import needed libs and define functions
+
+# %%
 import pandas as pd
 import subprocess
 import os
 import shutil
+
+
+# %%
+def get_creation_time(file_path):
+    try:
+        creation_time = os.path.getctime(file_path)
+        return pd.to_datetime(creation_time, unit='s')
+    except Exception as e:
+        print(f"Error getting creation time for {file_path}: {e}")
+        return None
 
 # %%
 def get_video_duration(file_path):
@@ -95,6 +108,7 @@ video_schnitt_df = clean_the_data(video_schnitt_df)
 # %%
 try:
     # videos need to be in same directory with python script
+    trash_list = []
     for idx, video_name in video_schnitt_df["dateiname"].items():
         
         columns_to_cut = ["vorne_abschneiden_bis","rausschneiden_ab","rausschneiden_bis","cut2_ab","cut2_bis","cut3_ab","cut3_bis","cut4_ab","cut4_bis","cut5_ab","cut5_bis"]
@@ -117,11 +131,13 @@ try:
                     cut_tail = get_video_duration(video_name)
 
                 output_file = f"{video_name.split('.')[0]}_part{i}.mp4"
-                
+                print("video_name:",video_name,"cut times:",cut_head,cut_tail)
                 cut_head_tail(video_name, output_file, cut_head, cut_tail)
-
+                
                 if i not in [1, 3, 5, 7, 9]:
                     parts_list.append(output_file)
+                else:
+                    trash_list.append(output_file)
 
                 if len(parts_list) == 2:
                     video1 = parts_list[0]
@@ -150,11 +166,30 @@ except Exception as error:
     print("An error occured:", error)   
 
 # %%
-path_script_output = "script_output"
-create_folder(path_script_output)
+# rename the videos
 
-path_folder_parts = "script_output/parts"
-create_folder(path_folder_parts)
+# %%
+# create a list with videonames of the youngest version that is not in trash list
+files = []
+
+for video_name in video_schnitt_df["dateiname"]:
+    prefix = video_name.split(".")[0]
+    youngest_creation_time = None
+    youngest_video = None 
+
+    for f in os.listdir():
+        
+       if f.startswith(prefix) and f.endswith(".mp4") and f not in trash_list:  
+           creation_time = get_creation_time(f)
+           if youngest_creation_time is None or creation_time > youngest_creation_time:
+               youngest_creation_time = creation_time
+               youngest_video = f     
+
+    if youngest_video is not None:
+        files.append(youngest_video)    
+  
+print("All the youngest versions of a video:",files)
+
 
 # %%
 original_video_names = list()
@@ -164,14 +199,32 @@ for video_name in video_schnitt_df["dateiname"]:
         original_video_names.append(video_name)
 
 # %%
-for filename in os.listdir():
-    if filename.endswith(".mp4") and filename not in original_video_names:
-        shutil.move(filename,path_script_output)
+#Compare the filenames with the original Videos
+files_to_reaname = [element for element in files if element not in original_video_names]
+
+print("Files that are gonne be renamed:",files_to_reaname)
 
 # %%
-for filename in os.listdir(path_script_output):
-    if filename.find("concatted"):
-        src = f"script_output/{filename}"
-        shutil.move(src,path_folder_parts)
+for file in files_to_reaname:
+    new_name = f"{file.split('.')[0]}_cut_things_out_endprodukt.mp4"
+    os.rename(file,new_name)
+    print(new_name)
+
+# %%
+# create folders and move files
+
+# %%
+path_folder_endprodukte = "endprodukte"
+create_folder(path_folder_endprodukte)
+
+path_folder_script_output = "script_output"
+create_folder(path_folder_script_output)
+
+# %%
+for filename in os.listdir():
+    if filename.endswith("endprodukt.mp4"):
+        shutil.move(filename,path_folder_endprodukte)
+    elif filename.endswith("mp4") and filename not in original_video_names:
+        shutil.move(filename,path_folder_script_output)
 
 
