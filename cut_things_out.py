@@ -116,22 +116,34 @@ try:
         parts_list = []
         video1 = 0
         video2 = 0
+        end_reached = None
+        print("Video Name to cut:", video_name)
 
         try:
             for i,col in enumerate(columns_to_cut):
                 cut_head = video_schnitt_df[col][idx]
                 cut_tail = video_schnitt_df[columns_to_cut[i+1]][idx]
+                print("index:",i,"Column:",col)
+                print("Timestamps before changing:",cut_head,cut_tail)
 
-                # logic to handle the nans
-                if cut_head == "nan" and cut_tail == "nan":
+                #logic to handle the nans
+                if cut_head == "nan" and cut_tail == "nan" and end_reached == True:
+                    end_reached = None
+                    print("Break used")
                     break
-                elif cut_head == "nan":
+                if  cut_head == "nan":
                     cut_head = "00:00:00"
-                elif cut_tail == "nan":
-                    cut_tail = get_video_duration(video_name)
+                    print("cut_head ersetzt")
 
+                if cut_tail == "nan" and video_schnitt_df["hinten_abschneiden_ab"][idx] == "nan":
+                    cut_tail = get_video_duration(video_name)
+                    end_reached = True
+                if cut_tail == "nan":
+                    cut_tail = video_schnitt_df["hinten_abschneiden_ab"][idx]
+                    end_reached = True
+                    print("hinten abschneiden got")
                 output_file = f"{video_name.split('.')[0]}_part{i}.mp4"
-                print("video_name:",video_name,"cut times:",cut_head,cut_tail)
+                print("Timestamps after changing:",cut_head,cut_tail)
                 cut_head_tail(video_name, output_file, cut_head, cut_tail)
                 
                 if i not in [1, 3, 5, 7, 9]:
@@ -159,8 +171,8 @@ try:
                     print(textfile_content, "output:", output_file)
                     concatenate_videos(textfile_name,output_file)                
 
-        except:
-            print("skip to next video")
+        except Exception as e:
+            print("skip to next video because:",e)
 
 except Exception as error:
     print("An error occured:", error)   
@@ -192,6 +204,9 @@ print("All the youngest versions of a video:",files)
 
 
 # %%
+trash_list
+
+# %%
 original_video_names = list()
 
 for video_name in video_schnitt_df["dateiname"]:
@@ -205,10 +220,13 @@ files_to_reaname = [element for element in files if element not in original_vide
 print("Files that are gonne be renamed:",files_to_reaname)
 
 # %%
-for file in files_to_reaname:
-    new_name = f"{file.split('.')[0]}_cut_things_out_endprodukt.mp4"
-    os.rename(file,new_name)
-    print(new_name)
+try:
+    for file in files_to_reaname:
+        new_name = f"{file.split('.')[0]}_cut_things_out_endprodukt.mp4"
+        os.rename(file,new_name)
+        print(new_name)
+except Exception as e:
+    print("Error while renaming:",e)
 
 # %%
 # create folders and move files
