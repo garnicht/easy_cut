@@ -1,26 +1,36 @@
-# %%
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[ ]:
+
+
 # import stuff and define functions
 
-# %%
+
+# In[ ]:
+
+
 import pandas as pd
 import subprocess
 import os
 import shutil
 
-# %%
-def get_the_table_data():
-    while True:
-        table_path = input("What is the table path + name? (.../filename.csv):")
-        try:
-            video_schnitt_df = pd.read_csv(table_path)
-            print("Table loaded succesfully")
-            return video_schnitt_df
-        except Exception as error:
-            print("An error occured:", error)
-            continue
-        break
 
-# %%
+# In[ ]:
+
+
+def get_the_table_data():
+    for f in os.listdir():
+        if f.endswith(".csv"):
+                video_schnitt_df = pd.read_csv(f)
+                print(f"Table {f} loaded succesfully")
+                return video_schnitt_df
+    raise ValueError("There is no csv in this directory")
+
+
+# In[ ]:
+
+
 def get_video_duration(file_path):
     command = ['ffmpeg', '-i', file_path]
     result = subprocess.run(command, text=True, capture_output=True)
@@ -29,7 +39,10 @@ def get_video_duration(file_path):
     duration = duration_line.strip().split(",")[0].split(" ")[1]
     return duration
 
-# %%
+
+# In[ ]:
+
+
 def clean_the_data(df):
     df.columns = df.columns.str.lower()
     df.columns = df.columns.str.replace(" ", "_")
@@ -38,7 +51,10 @@ def clean_the_data(df):
     print("Table Columns cleaned")
     return df
 
-# %%
+
+# In[ ]:
+
+
 def cut_head_tail(original_video,output_file,cut_head="00:00:00",cut_tail="00:50:00"):
 
     # Construct the command
@@ -58,7 +74,10 @@ def cut_head_tail(original_video,output_file,cut_head="00:00:00",cut_tail="00:50
     except subprocess.CalledProcessError as e:
         print(f"An error occurred: {e}")
 
-# %%
+
+# In[ ]:
+
+
 def create_folder(folder_name):
     try:
         # Create a new folder in the current working directory
@@ -67,7 +86,10 @@ def create_folder(folder_name):
     except FileExistsError:
         print(f"Folder '{folder_name}' already exists.")
 
-# %%
+
+# In[ ]:
+
+
 # maybe needs to be encoded too! 
 
 def cut_in_2_pieces(input_file, timestamp, head_output, tail_output):
@@ -83,17 +105,29 @@ def cut_in_2_pieces(input_file, timestamp, head_output, tail_output):
     except subprocess.CalledProcessError as e:
         print(f"An error occurred: {e}")
 
-# %%
+
+# In[ ]:
+
+
 # get file and clean
 
-# %%
+
+# In[ ]:
+
+
 video_schnitt_df = get_the_table_data()
 video_schnitt_df = clean_the_data(video_schnitt_df)
 
-# %%
+
+# In[ ]:
+
+
 # cut the video first if needed
 
-# %%
+
+# In[ ]:
+
+
 # videos need to be in same directory with python script
 try:
     for idx, video_name in video_schnitt_df["dateiname"].items():
@@ -117,10 +151,16 @@ try:
 except Exception as error:
     print("An error occurred:", error)
 
-# %%
+
+# In[ ]:
+
+
 # cut and keep the pieces
 
-# %%
+
+# In[ ]:
+
+
 try:
     for idx, video_name in video_schnitt_df["dateiname"].items():
         
@@ -144,28 +184,39 @@ try:
 except Exception as error:
     print("An error occurred:", error)
 
-# %%
+
+# In[ ]:
+
+
 # create folders and move files
 
-# %%
+
+# In[ ]:
+
+
 path_folder_endprodukte = "endprodukte"
 create_folder(path_folder_endprodukte)
 
 path_folder_script_output = "script_output"
 create_folder(path_folder_script_output)
 
-# %%
+
+# In[ ]:
+
+
 original_video_names = list()
 
 for video_name in video_schnitt_df["dateiname"]:
     if video_name != "nan":
         original_video_names.append(video_name)
 
-# %%
+
+# In[ ]:
+
+
 for filename in os.listdir():
     if filename.endswith("endprodukt.mp4"):
         shutil.move(filename,path_folder_endprodukte)
     elif filename.endswith("mp4") and filename not in original_video_names:
         shutil.move(filename,path_folder_script_output)
-
 

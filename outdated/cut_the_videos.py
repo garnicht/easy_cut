@@ -1,10 +1,18 @@
-# %%
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[ ]:
+
+
 import pandas as pd
 import subprocess
 import os
 import shutil
 
-# %%
+
+# In[ ]:
+
+
 def get_the_table_data():
     while True:
         table_path = input("What is the table path + name? (.../filename.csv):")
@@ -17,7 +25,10 @@ def get_the_table_data():
             continue
         break
 
-# %%
+
+# In[ ]:
+
+
 def clean_the_data(df):
     df.columns = df.columns.str.lower()
     df.columns = df.columns.str.replace(" ", "_")
@@ -26,7 +37,10 @@ def clean_the_data(df):
     print("Table Columns cleaned")
     return df
 
-# %%
+
+# In[ ]:
+
+
 def cut_head_tail(original_video,output_file,cut_head="00:00:00",cut_tail="00:50:00"):
 
     # Construct the command
@@ -46,7 +60,10 @@ def cut_head_tail(original_video,output_file,cut_head="00:00:00",cut_tail="00:50
     except subprocess.CalledProcessError as e:
         print(f"An error occurred: {e}")
 
-# %%
+
+# In[ ]:
+
+
 def get_video_duration(file_path):
     command = ['ffmpeg', '-i', file_path]
     result = subprocess.run(command, text=True, capture_output=True)
@@ -55,7 +72,10 @@ def get_video_duration(file_path):
     duration = duration_line.strip().split(",")[0].split(" ")[1]
     return duration
 
-# %%
+
+# In[ ]:
+
+
 def get_tail(input_file,output_file,timestamp):
 
     # -ss = ab dort; -to = bis dort
@@ -67,7 +87,10 @@ def get_tail(input_file,output_file,timestamp):
     except subprocess.CalledProcessError as e:
         print(f"An error occurred: {e}")
 
-# %%
+
+# In[ ]:
+
+
 def get_head(input_file,output_file,timestamp):
 
     # -ss = output ab dort; -to = output bis dort 
@@ -79,7 +102,10 @@ def get_head(input_file,output_file,timestamp):
     except subprocess.CalledProcessError as e:
         print(f"An error occurred: {e}")
 
-# %%
+
+# In[ ]:
+
+
 def cut_in_2_pieces(input_file, timestamp, head_output, tail_output):
     
     # -ss = ab dort; -to = bis dort
@@ -93,9 +119,12 @@ def cut_in_2_pieces(input_file, timestamp, head_output, tail_output):
     except subprocess.CalledProcessError as e:
         print(f"An error occurred: {e}")
 
-# %%
+
+# In[ ]:
+
+
 def cut_between_pieces(input_file,output_file,cut_head,cut_tail):
-    return
+    pass
     # -ss = ab dort; -to = bis dort
     command = ['ffmpeg', '-i', input_file, '-to', cut_head, '-c', 'copy', head_output]
     command = ['ffmpeg', '-i', input_file, '-to', cut_tail, '-c', 'copy', tail_output]
@@ -105,7 +134,10 @@ def cut_between_pieces(input_file,output_file,cut_head,cut_tail):
     except subprocess.CalledProcessError as e:
         print(f"An error occurred: {e}")
 
-# %%
+
+# In[ ]:
+
+
 def get_standbild(input_file,output_file,cut_head):
     
     #creat timedelta and add 1 miliseconds
@@ -135,7 +167,10 @@ def get_standbild(input_file,output_file,cut_head):
     except subprocess.CalledProcessError as e:
         print(f"An error occurred: {e}")
 
-# %%
+
+# In[ ]:
+
+
 def create_folder(folder_name):
     try:
         # Create a new folder in the current working directory
@@ -144,7 +179,10 @@ def create_folder(folder_name):
     except FileExistsError:
         print(f"Folder '{folder_name}' already exists.")
 
-# %%
+
+# In[ ]:
+
+
 def merge_audio_and_video(video_file,audio_file,output_file):
     #Construct command
     command = ['ffmpeg',
@@ -159,7 +197,10 @@ def merge_audio_and_video(video_file,audio_file,output_file):
     except subprocess.CalledProcessError as e:
         print(f"An error occurred: {e}")
 
-# %%
+
+# In[ ]:
+
+
 def concatenate_videos(input_file, output_file):
     
     command = [
@@ -177,7 +218,10 @@ def concatenate_videos(input_file, output_file):
     except subprocess.CalledProcessError as e:
         print("An error occured:", e)
 
-# %%
+
+# In[ ]:
+
+
 def get_audio(input_file,output_file,cut_head,cut_tail):
     
     #Construct command
@@ -193,17 +237,21 @@ def get_audio(input_file,output_file,cut_head,cut_tail):
     except subprocess.CalledProcessError as e:
         print(f"An error occurred: {e}")
 
-# %% [markdown]
+
 # # Get the file and clean it
 
-# %%
+# In[ ]:
+
+
 video_schnitt_df = get_the_table_data()
 video_schnitt_df = clean_the_data(video_schnitt_df)
 
-# %% [markdown]
+
 # # Cut head and tail
 
-# %%
+# In[ ]:
+
+
 # videos need to be in same directory with python script
 try:
     for idx, video_name in video_schnitt_df["dateiname"].items():
@@ -212,22 +260,28 @@ try:
         cut_tail = video_schnitt_df["hinten_abschneiden_ab"][idx]
 
         #building logic when just to cut head or tail
-        if str(cut_head) == "nan" and str(cut_tail) == "nan":
+        if cut_head == "nan" and cut_tail == "nan" and video_schnitt_df["vorne_bild_durch_standbild_ersetzen_bis"][idx] == "nan":
             continue
-        if str(cut_head) == "nan":
+        if cut_head == "nan" and cut_tail == "nan" 
+        if cut_head == "nan":
             cut_head = "00:00:00"
-        if str(cut_tail) == "nan":
+        if cut_tail == "nan":
             cut_tail = "00:40:00" # could be adjustet with get duration function
+        if video_schnitt_df["vorne_bild_durch_standbild_ersetzen_bis"][idx] != "nan":
+            cut_head = video_schnitt_df["vorne_bild_durch_standbild_ersetzen_bis"][idx]
+            cut_tail = video_schnitt_df["hinten_abschneiden_ab"][idx]
     
         print("input name:",video_name,"Schnittpunkte:", cut_head, cut_tail)
         cut_head_tail(video_name, output_file, cut_head, cut_tail)
 except Exception as error:
     print("An error occurred:", error)
 
-# %% [markdown]
+
 # # Get Standbild
 
-# %%
+# In[ ]:
+
+
 # videos need to be in same directory with python script
 try:
     for idx, video_name in video_schnitt_df["dateiname"].items():
@@ -242,10 +296,12 @@ try:
 except Exception as error:
     print("An error occurred:", error)
 
-# %% [markdown]
+
 # # Get audio
 
-# %%
+# In[ ]:
+
+
 try:
     for idx, video_name in video_schnitt_df["dateiname"].items():
         
@@ -270,10 +326,12 @@ try:
 except Exception as error:
     print("An error occurred:", error)
 
-# %% [markdown]
+
 # # Merge audio and video
 
-# %%
+# In[ ]:
+
+
 try:
     for idx, video_name in video_schnitt_df["dateiname"].items():
 
@@ -288,10 +346,12 @@ try:
 except Exception as error:
     print("An error occured:", error)
 
-# %% [markdown]
+
 # # Concatenate videos to end product
 
-# %%
+# In[ ]:
+
+
 try:
     for idx, video_name in video_schnitt_df["dateiname"].items():
 
@@ -314,10 +374,12 @@ try:
 except Exception as error:
     print("An error occured:", error)
 
-# %% [markdown]
+
 # # Remove and Concat
 
-# %%
+# In[ ]:
+
+
 #Get Head
 
 try:
@@ -358,7 +420,10 @@ try:
 except Exception as error:
     print("An error occured:", error)   
 
-# %%
+
+# In[ ]:
+
+
 #Get Tail
 try:
     for idx, video_name in video_schnitt_df["dateiname"].items():
@@ -397,7 +462,10 @@ try:
 except Exception as error:
     print("An error occured:", error)   
 
-# %%
+
+# In[ ]:
+
+
 # Concat head and tail
 try:
     for idx, video_name in video_schnitt_df["dateiname"].items():
@@ -420,42 +488,54 @@ try:
 except Exception as error:
     print("An error occured:", error)
 
-# %% [markdown]
+
 # # Create folder and put all new created files into this folder
 
-# %%
+# In[ ]:
+
+
 path_script_output = "script_output"
 create_folder(path_script_output)
 
 path_folder_endprodukte = "script_output/endprodukte"
 create_folder(path_folder_endprodukte)
 
-# %%
+
+# In[ ]:
+
+
 original_video_names = list()
 
 for video_name in video_schnitt_df["dateiname"]:
     if video_name != "nan":
         original_video_names.append(video_name)
 
-# %%
+
+# In[ ]:
+
+
 for filename in os.listdir():
     if filename.endswith(".mp4") and filename not in original_video_names:
         shutil.move(filename,path_script_output)
 
-# %%
+
+# In[ ]:
+
+
 for filename in os.listdir(path_script_output):
     if filename.endswith("_endprodukt_remove_and_concat.mp4") or filename.endswith("_ohne_start_ende.mp4") or filename.endswith("_endprodukt_trimmed.mp4"):
         src = f"script_output/{filename}"
         shutil.move(src,path_folder_endprodukte)
 
-# %% [markdown]
+
 # # Cut in pieces
 
-# %%
+# In[ ]:
+
+
 # for idx, video_name in video_schnitt_df["dateiname"].items():
 #     cut_time = video_schnitt_df["schnitt_setzen_bei"][idx]
 #     head_output = f"{video_name}_head_piece.mp4"
 #     tail_output = f"{video_name}_tail_piece.mp4"
 #     cut_in_pieces(video_name,cut_time,head_output,tail_output)
-
 

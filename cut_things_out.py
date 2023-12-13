@@ -1,14 +1,24 @@
-# %%
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[ ]:
+
+
 #Import needed libs and define functions
 
-# %%
+
+# In[ ]:
+
+
 import pandas as pd
 import subprocess
 import os
 import shutil
 
 
-# %%
+# In[ ]:
+
+
 def get_creation_time(file_path):
     try:
         creation_time = os.path.getctime(file_path)
@@ -17,7 +27,10 @@ def get_creation_time(file_path):
         print(f"Error getting creation time for {file_path}: {e}")
         return None
 
-# %%
+
+# In[ ]:
+
+
 def get_video_duration(file_path):
     command = ['ffmpeg', '-i', file_path]
     result = subprocess.run(command, text=True, capture_output=True)
@@ -26,7 +39,10 @@ def get_video_duration(file_path):
     duration = duration_line.strip().split(",")[0].split(" ")[1]
     return duration
 
-# %%
+
+# In[ ]:
+
+
 def create_folder(folder_name):
     try:
         # Create a new folder in the current working directory
@@ -35,20 +51,22 @@ def create_folder(folder_name):
     except FileExistsError:
         print(f"Folder '{folder_name}' already exists.")
 
-# %%
-def get_the_table_data():
-    while True:
-        table_path = input("What is the table path + name? (.../filename.csv):")
-        try:
-            video_schnitt_df = pd.read_csv(table_path)
-            print("Table loaded succesfully")
-            return video_schnitt_df
-        except Exception as error:
-            print("An error occured:", error)
-            continue
-        break
 
-# %%
+# In[ ]:
+
+
+def get_the_table_data():
+    for f in os.listdir():
+        if f.endswith(".csv"):
+                video_schnitt_df = pd.read_csv(f)
+                print(f"Table {f} loaded succesfully")
+                return video_schnitt_df
+    raise ValueError("There is no csv in this directory")
+
+
+# In[ ]:
+
+
 def clean_the_data(df):
     df.columns = df.columns.str.lower()
     df.columns = df.columns.str.replace(" ", "_")
@@ -57,7 +75,10 @@ def clean_the_data(df):
     print("Table Columns cleaned")
     return df
 
-# %%
+
+# In[ ]:
+
+
 def cut_head_tail(original_video,output_file,cut_head="00:00:00",cut_tail="00:50:00"):
 
     # Construct the command
@@ -77,7 +98,10 @@ def cut_head_tail(original_video,output_file,cut_head="00:00:00",cut_tail="00:50
     except subprocess.CalledProcessError as e:
         print(f"An error occurred: {e}")
 
-# %%
+
+# In[ ]:
+
+
 def concatenate_videos(input_file, output_file):
     
     command = [
@@ -95,17 +119,21 @@ def concatenate_videos(input_file, output_file):
     except subprocess.CalledProcessError as e:
         print("An error occured:", e)
 
-# %% [markdown]
+
 # # Get the file and clean it
 
-# %%
+# In[ ]:
+
+
 video_schnitt_df = get_the_table_data()
 video_schnitt_df = clean_the_data(video_schnitt_df)
 
-# %% [markdown]
+
 # # remove more slices in a video
 
-# %%
+# In[ ]:
+
+
 try:
     # videos need to be in same directory with python script
     trash_list = []
@@ -180,10 +208,12 @@ try:
 except Exception as error:
     print("An error occured:", error)   
 
-# %% [markdown]
+
 # # rename the right videos to _endprodukt
 
-# %%
+# In[ ]:
+
+
 # create a list with videonames of the youngest version that is not in trash list
 files = []
 
@@ -206,7 +236,9 @@ for video_name in video_schnitt_df["dateiname"]:
 print("All the youngest versions of a video:",files)
 
 
-# %%
+# In[ ]:
+
+
 # create a list of original video_names
 original_video_names = list()
 
@@ -214,13 +246,19 @@ for video_name in video_schnitt_df["dateiname"]:
     if video_name != "nan":
         original_video_names.append(video_name)
 
-# %%
+
+# In[ ]:
+
+
 #Compare the filenames with the original Videos
 files_to_reaname = [element for element in files if element not in original_video_names]
 
 print("Files that are gonna be renamed:",files_to_reaname)
 
-# %%
+
+# In[ ]:
+
+
 # rename the videos
 try:
     for file in files_to_reaname:
@@ -230,21 +268,25 @@ try:
 except Exception as e:
     print("Error while renaming:",e)
 
-# %% [markdown]
+
 # # create folders and move files
 
-# %%
+# In[ ]:
+
+
 path_folder_endprodukte = "endprodukte"
 create_folder(path_folder_endprodukte)
 
 path_folder_script_output = "script_output"
 create_folder(path_folder_script_output)
 
-# %%
+
+# In[ ]:
+
+
 for filename in os.listdir():
     if filename.endswith("endprodukt.mp4"):
         shutil.move(filename,path_folder_endprodukte)
     elif filename.endswith("mp4") and filename not in original_video_names:
         shutil.move(filename,path_folder_script_output)
-
 
