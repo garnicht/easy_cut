@@ -201,7 +201,7 @@ create_folder(path_folder_script_output)
 
 # %%
 for filename in os.listdir():
-    if filename.find("concatted"):
+    if "concatted" in filename:
         shutil.move(filename,path_folder_endprodukte)
-    if filename.endswith(".mp4") and filename not in original_video_names:
+    elif filename.endswith(".mp4") and filename not in original_video_names:
         shutil.move(filename,path_folder_script_output)
