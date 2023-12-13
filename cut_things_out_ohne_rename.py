@@ -110,11 +110,8 @@ try:
     # videos need to be in same directory with python script
     trash_list = []
     for idx, video_name in video_schnitt_df["dateiname"].items():
-        if not os.path.exists(video_name):
-            print("Following file does not exist:",video_name)
-            continue
         
-        columns_to_cut = ["vorne_abschneiden_bis","rausschneiden_ab","rausschneiden_bis","cut2_ab","cut2_bis","cut3_ab","cut3_bis","cut4_ab","cut4_bis","cut5_ab","cut5_bis","hinten_abschneiden_ab"]
+        columns_to_cut = ["vorne_abschneiden_bis","rausschneiden_ab","rausschneiden_bis","cut2_ab","cut2_bis","cut3_ab","cut3_bis","cut4_ab","cut4_bis","cut5_ab","cut5_bis"]
 
         parts_list = []
         video1 = 0
@@ -149,7 +146,7 @@ try:
                 print("Timestamps after changing:",cut_head,cut_tail)
                 cut_head_tail(video_name, output_file, cut_head, cut_tail)
                 
-                if i not in [1, 3, 5, 7, 9, 11]:
+                if i not in [1, 3, 5, 7, 9]:
                     parts_list.append(output_file)
                 else:
                     trash_list.append(output_file)
@@ -180,32 +177,6 @@ try:
 except Exception as error:
     print("An error occured:", error)   
 
-# %% [markdown]
-# # rename the right videos to _endprodukt
-
-# %%
-# create a list with videonames of the youngest version that is not in trash list
-files = []
-
-for video_name in video_schnitt_df["dateiname"]:
-    prefix = video_name.split(".")[0]
-    youngest_creation_time = None
-    youngest_video = None 
-
-    for f in os.listdir():
-        
-       if f.startswith(prefix) and f.endswith(".mp4") and f not in trash_list:  
-           creation_time = get_creation_time(f)
-           if youngest_creation_time is None or creation_time > youngest_creation_time:
-               youngest_creation_time = creation_time
-               youngest_video = f     
-
-    if youngest_video is not None:
-        files.append(youngest_video)    
-  
-print("All the youngest versions of a video:",files)
-
-
 # %%
 # create a list of original video_names
 original_video_names = list()
@@ -213,22 +184,6 @@ original_video_names = list()
 for video_name in video_schnitt_df["dateiname"]:
     if video_name != "nan":
         original_video_names.append(video_name)
-
-# %%
-#Compare the filenames with the original Videos
-files_to_reaname = [element for element in files if element not in original_video_names]
-
-print("Files that are gonna be renamed:",files_to_reaname)
-
-# %%
-# rename the videos
-try:
-    for file in files_to_reaname:
-        new_name = f"{file.split('.')[0]}_cut_things_out_endprodukt.mp4"
-        os.rename(file,new_name)
-        print(new_name)
-except Exception as e:
-    print("Error while renaming:",e)
 
 # %% [markdown]
 # # create folders and move files
@@ -242,9 +197,7 @@ create_folder(path_folder_script_output)
 
 # %%
 for filename in os.listdir():
-    if filename.endswith("endprodukt.mp4"):
+    if filename.find("concatted"):
         shutil.move(filename,path_folder_endprodukte)
-    elif filename.endswith("mp4") and filename not in original_video_names:
+    elif filename.endswith(".mp4") and filename not in original_video_names:
         shutil.move(filename,path_folder_script_output)
-
-
