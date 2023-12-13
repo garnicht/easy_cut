@@ -111,7 +111,11 @@ try:
     trash_list = []
     for idx, video_name in video_schnitt_df["dateiname"].items():
         
-        columns_to_cut = ["vorne_abschneiden_bis","rausschneiden_ab","rausschneiden_bis","cut2_ab","cut2_bis","cut3_ab","cut3_bis","cut4_ab","cut4_bis","cut5_ab","cut5_bis"]
+        if not os.path.exists(video_name):
+            print("Following file does not exist:",video_name)
+            continue
+
+        columns_to_cut = ["vorne_abschneiden_bis","rausschneiden_ab","rausschneiden_bis","cut2_ab","cut2_bis","cut3_ab","cut3_bis","cut4_ab","cut4_bis","cut5_ab","cut5_bis","hinten_abschneiden_ab"]
 
         parts_list = []
         video1 = 0
@@ -199,5 +203,5 @@ create_folder(path_folder_script_output)
 for filename in os.listdir():
     if filename.find("concatted"):
         shutil.move(filename,path_folder_endprodukte)
-    elif filename.endswith(".mp4") and filename not in original_video_names:
+    if filename.endswith(".mp4") and filename not in original_video_names:
         shutil.move(filename,path_folder_script_output)
