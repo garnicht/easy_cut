@@ -15,11 +15,12 @@ The goal is to reduce the amount of time my stakeholder needs to manually cut hi
 - [ ] restructure ur scripts to one exe
 - ([ ] rename the endprodukte to original video_name)
 - [x] improve all the .py files to also accept the last cut timestamp. Right now there still needs some manuel manipulation to be done
-- [ ] csv soll kein input sein, take csv in directory
+- [x] csv soll kein input sein, take csv in directory
 - [ ] delete the nebenprodukte
 - [ ] bug: If one video_name consists exact part of another video_name, renaming does not work properly (need to change startswith prefix)
 - [ ] improve performance with ignoring the cut of odd parts 
 - [ ] bug: when script standbild_ersetzen is runned, all original_videos not in csv (was an special csv) also got removed into script_output folder
+- [x] bug: part10 was not created, script ended at part9, end is missing some minutes or seconds
 
 # What are the different executions / files? 
 - cut_and_keep -> this script allows to cut the videos at given timestamp and saves both outputs 

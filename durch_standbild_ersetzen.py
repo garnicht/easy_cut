@@ -363,11 +363,8 @@ for video_name in video_schnitt_df["dateiname"]:
 
 
 # In[ ]:
-
-
 for filename in os.listdir():
     if filename.endswith("endprodukt.mp4"):
         shutil.move(filename,path_folder_endprodukte)
     elif filename.endswith("mp4") and filename not in original_video_names:
         shutil.move(filename,path_folder_script_output)
-
