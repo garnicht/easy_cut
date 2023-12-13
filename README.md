@@ -12,8 +12,11 @@ The goal is to reduce the amount of time my stakeholder needs to manually cut hi
 - [x] create a loop to remove and concat videos
 - [x] create a cut into pieces function
 - [x] edit the cut_the_videos so all endprodukte move to the right folderand maybe are renamed
-- [ ] restructure ur scripts to one exe and few storages
-- [ ] improve all the .py files to also accept the last cut timestamp. Right now there still needs some manuel manipulation to be done
+- [ ] restructure ur scripts to one exe
+- [ ] rename the endprodukte
+- [x] improve all the .py files to also accept the last cut timestamp. Right now there still needs some manuel manipulation to be done
+- [ ] csv soll kein input sein, take csv in directory
+- [ ] delete the nebenprodukte
 
 # What are the different executions / files? 
 - cut_and_keep -> this script allows to cut the videos at given timestamp and saves both outputs 
