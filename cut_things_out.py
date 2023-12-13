@@ -177,8 +177,8 @@ try:
 except Exception as error:
     print("An error occured:", error)   
 
-# %%
-# rename the videos
+# %% [markdown]
+# # rename the right videos to _endprodukt
 
 # %%
 # create a list with videonames of the youngest version that is not in trash list
@@ -204,9 +204,7 @@ print("All the youngest versions of a video:",files)
 
 
 # %%
-trash_list
-
-# %%
+# create a list of original video_names
 original_video_names = list()
 
 for video_name in video_schnitt_df["dateiname"]:
@@ -217,9 +215,10 @@ for video_name in video_schnitt_df["dateiname"]:
 #Compare the filenames with the original Videos
 files_to_reaname = [element for element in files if element not in original_video_names]
 
-print("Files that are gonne be renamed:",files_to_reaname)
+print("Files that are gonna be renamed:",files_to_reaname)
 
 # %%
+# rename the videos
 try:
     for file in files_to_reaname:
         new_name = f"{file.split('.')[0]}_cut_things_out_endprodukt.mp4"
@@ -228,8 +227,8 @@ try:
 except Exception as e:
     print("Error while renaming:",e)
 
-# %%
-# create folders and move files
+# %% [markdown]
+# # create folders and move files
 
 # %%
 path_folder_endprodukte = "endprodukte"
