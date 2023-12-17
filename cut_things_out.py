@@ -19,6 +19,16 @@ import shutil
 # In[ ]:
 
 
+def remove_end_in_name(filename):
+    splitted = filename.split("_")
+    splitted.pop()
+    joined_string = "_".join(splitted)
+    return joined_string
+
+
+# In[ ]:
+
+
 def get_creation_time(file_path):
     try:
         creation_time = os.path.getctime(file_path)
@@ -218,18 +228,22 @@ except Exception as error:
 files = []
 
 for video_name in video_schnitt_df["dateiname"]:
-    prefix = video_name.split(".")[0]
+    original_prefix = video_name.split('.')[0]
     youngest_creation_time = None
     youngest_video = None 
 
-    for f in os.listdir():
-        
-       if f.startswith(prefix) and f.endswith(".mp4") and f not in trash_list:  
-           creation_time = get_creation_time(f)
-           if youngest_creation_time is None or creation_time > youngest_creation_time:
-               youngest_creation_time = creation_time
-               youngest_video = f     
-
+    for f in os.listdir():     
+        if f.endswith(".mp4") and f not in trash_list:
+            if "_" in f:
+                part_prefix = remove_end_in_name(f)
+            else:
+                part_prefix = f.split('.')[0]
+            
+            if part_prefix == original_prefix:
+                creation_time = get_creation_time(f)
+                if youngest_creation_time is None or creation_time > youngest_creation_time:
+                    youngest_creation_time = creation_time
+                    youngest_video = f     
     if youngest_video is not None:
         files.append(youngest_video)    
   
