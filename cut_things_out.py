@@ -14,6 +14,7 @@ import pandas as pd
 import subprocess
 import os
 import shutil
+import re
 
 
 # In[ ]:
@@ -97,7 +98,7 @@ def cut_head_tail(original_video,output_file,cut_head="00:00:00",cut_tail="00:50
         '-i', original_video,
         '-ss', cut_head,
         '-to', cut_tail,
-        '-c:v','libx264',
+        '-c:v','libx264', #libx264 to encode and copy to test
          '-c:a', 'copy',
         output_file
     ]
@@ -130,6 +131,29 @@ def concatenate_videos(input_file, output_file):
         print("An error occured:", e)
 
 
+# In[ ]:
+
+
+def get_columns_to_cut(df):
+    pattern = re.compile(r'^rausschneiden\d+_[a-z]+$')
+    dummy = []
+    for column in df.columns:
+        if pattern.match(column):
+            dummy.append(column)
+    return dummy
+
+
+# In[ ]:
+
+
+def get_list_of_evens(input_list):
+    dummy = []
+    for i in range(len(input_list)):
+        if i % 2 == 0:
+            dummy.append(i)
+    return dummy
+
+
 # # Get the file and clean it
 
 # In[ ]:
@@ -137,6 +161,15 @@ def concatenate_videos(input_file, output_file):
 
 video_schnitt_df = get_the_table_data()
 video_schnitt_df = clean_the_data(video_schnitt_df)
+
+
+# In[ ]:
+
+
+# put all the column headlines that matters into a list
+# define a function for that
+# maybe use regular expression to do that
+# replace the columns_to cut list with the new input 
 
 
 # # remove more slices in a video
@@ -152,7 +185,8 @@ try:
             print("Following file does not exist:",video_name)
             continue
         
-        columns_to_cut = ["vorne_abschneiden_bis","rausschneiden_ab","rausschneiden_bis","cut2_ab","cut2_bis","cut3_ab","cut3_bis","cut4_ab","cut4_bis","cut5_ab","cut5_bis","hinten_abschneiden_ab"]
+        columns_to_cut = get_columns_to_cut(video_schnitt_df)
+        evens = get_list_of_evens(columns_to_cut)
 
         parts_list = []
         video1 = 0
@@ -176,18 +210,16 @@ try:
                     cut_head = "00:00:00"
                     print("cut_head ersetzt")
 
-                if cut_tail == "nan" and video_schnitt_df["hinten_abschneiden_ab"][idx] == "nan":
+                if cut_tail == "nan":
                     cut_tail = get_video_duration(video_name)
                     end_reached = True
-                if cut_tail == "nan":
-                    cut_tail = video_schnitt_df["hinten_abschneiden_ab"][idx]
-                    end_reached = True
-                    print("hinten abschneiden got")
+                    print("end reached")
+                    
                 output_file = f"{video_name.split('.')[0]}_part{i}.mp4"
                 print("Timestamps after changing:",cut_head,cut_tail)
                 cut_head_tail(video_name, output_file, cut_head, cut_tail)
                 
-                if i not in [1, 3, 5, 7, 9, 11]:
+                if i not in evens:
                     parts_list.append(output_file)
                 else:
                     trash_list.append(output_file)
