@@ -27,6 +27,9 @@ The goal is to reduce the amount of time my stakeholder needs to manually cut hi
 - [ ] rename the endprodukte to original video_name
 - [ ] adding pauses into video
 - [ ] change the rename system of cut_things_out to also use regular expression (higher consistency)
+- [ ] performance update -> switch part1 from cut_things_out with merged_start from standbild_ersetzen
+- [ ] performance update -> looks like It may be possible to just copy in durch_standbild_ersetzen
+- [ ] delete dummy.txt in the end
 
 # What are the different executions / files? 
 - cut_and_keep -> this script allows to cut the videos at given timestamp and saves both outputs 

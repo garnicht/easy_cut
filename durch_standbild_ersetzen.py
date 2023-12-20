@@ -107,7 +107,8 @@ def get_audio(input_file,output_file,cut_head,cut_tail):
                '-i', input_file,
                '-ss', cut_head,
                '-to', cut_tail,
-               '-vn','-c:a', 'copy', output_file]
+               '-vn',
+               '-c:a', 'copy', output_file]
     
     # Run the command
     try:
@@ -145,8 +146,8 @@ def cut_head_tail(original_video,output_file,cut_head="00:00:00",cut_tail="00:50
         '-i', original_video,
         '-ss', cut_head,
         '-to', cut_tail,
-        '-c:v','libx264',
-         '-c:a', 'copy',
+        '-c:v','copy',
+        '-c:a', 'copy',
         output_file
     ]
     
@@ -203,7 +204,7 @@ video_schnitt_df = clean_the_data(video_schnitt_df)
 try:
     for idx, video_name in video_schnitt_df["dateiname"].items():
         output_file = f"{video_name.split('.')[0]}_standbild.mp4"
-        cut_head = video_schnitt_df["vorne_bild_durch_standbild_ersetzen_bis"][idx]
+        cut_head = video_schnitt_df["standbild_bis"][idx]
 
         #building logic when just to cut head or tail
         if cut_head == "nan":
@@ -226,17 +227,13 @@ except Exception as error:
 try:
     for idx, video_name in video_schnitt_df["dateiname"].items():
         
-        if video_schnitt_df["vorne_bild_durch_standbild_ersetzen_bis"][idx] == "nan":
+        if video_schnitt_df["standbild_bis"][idx] == "nan":
             continue
-        # timedelta = cut_tail - pd.to_timedelta(cut_head)
-        # dummy_date = pd.Timestamp('1900-01-01')
-        # new_timestamp = dummy_date + timedelta
-        # cut_tail = new_timestamp.strftime('%H:%M:%S.%f')[:-3]
 
         #Define arguments
         output_file = f"{video_name.split('.')[0]}_head_audio.mp4"
-        cut_head = video_schnitt_df["vorne_abschneiden_bis"][idx]
-        cut_tail = video_schnitt_df["vorne_bild_durch_standbild_ersetzen_bis"][idx]
+        cut_head = video_schnitt_df["rausschneiden1_ab"][idx]
+        cut_tail = video_schnitt_df["standbild_bis"][idx]
 
         if cut_head == "nan":
             cut_head = "00:00:00"
@@ -251,7 +248,7 @@ except Exception as error:
 # In[ ]:
 
 
-# Cut the original Video
+# Cut head of the original Video
 
 
 # In[ ]:
@@ -260,16 +257,13 @@ except Exception as error:
 try:
     for idx, video_name in video_schnitt_df["dateiname"].items():
 
-        if video_schnitt_df["vorne_bild_durch_standbild_ersetzen_bis"][idx] == "nan":
+        if video_schnitt_df["standbild_bis"][idx] == "nan":
             continue
+        
         # define arguments
-        output_file = f"{video_name.split('.')[0]}_ohne_start_ende_standbild.mp4"
-        cut_head = video_schnitt_df["vorne_bild_durch_standbild_ersetzen_bis"][idx]
-        cut_tail = video_schnitt_df["hinten_abschneiden_ab"][idx]
-
-        #building logic when just to cut head or tail
-        if cut_tail == "nan":
-            cut_tail = get_video_duration(video_name)
+        cut_head = video_schnitt_df["standbild_bis"][idx]
+        cut_tail = get_video_duration(video_name)
+        output_file = f"{video_name.split('.')[0]}_ohne_start_standbild.mp4"
     
         print("input name:",video_name,"Schnittpunkte:", cut_head, cut_tail)
         cut_head_tail(video_name, output_file, cut_head, cut_tail)
@@ -289,8 +283,9 @@ except Exception as error:
 try:
     for idx, video_name in video_schnitt_df["dateiname"].items():
 
-        if video_schnitt_df["vorne_bild_durch_standbild_ersetzen_bis"][idx] == "nan":
+        if video_schnitt_df["standbild_bis"][idx] == "nan":
             continue
+        
         video_file = f"{video_name.split('.')[0]}_standbild.mp4"
         audio_file = f"{video_name.split('.')[0]}_head_audio.mp4"
         output_file = f"{video_name.split('.')[0]}_merged_start.mp4"
@@ -314,12 +309,12 @@ except Exception as error:
 try:
     for idx, video_name in video_schnitt_df["dateiname"].items():
 
-        if video_schnitt_df["vorne_bild_durch_standbild_ersetzen_bis"][idx] == "nan":
+        if video_schnitt_df["standbild_bis"][idx] == "nan":
             continue
         
         #define input for the text file with the videos we want to concat
         video1 = f"{video_name.split('.')[0]}_merged_start.mp4"
-        video2 = f"{video_name.split('.')[0]}_ohne_start_ende_standbild.mp4"
+        video2 = f"{video_name.split('.')[0]}_ohne_start_standbild.mp4"
         textfile_content = f"file '{video1}'\nfile '{video2}'"
 
         #create the file with content
@@ -327,7 +322,7 @@ try:
             textfile.write(textfile_content)
 
         #define parameters for concat function
-        output_file = f"{video_name.split('.')[0]}_endprodukt.mp4"
+        output_file = f"{video_name.split('.')[0]}_standbild_endprodukt.mp4"
         textfile_name = "dummy.txt"
         print("file content:", textfile_content)
         concatenate_videos(textfile_name,output_file)
@@ -363,8 +358,11 @@ for video_name in video_schnitt_df["dateiname"]:
 
 
 # In[ ]:
+
+
 for filename in os.listdir():
     if filename.endswith("endprodukt.mp4"):
         shutil.move(filename,path_folder_endprodukte)
     elif filename.endswith("mp4") and filename not in original_video_names:
         shutil.move(filename,path_folder_script_output)
+
