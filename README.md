@@ -19,7 +19,7 @@ The goal is to reduce the amount of time my stakeholder needs to manually cut hi
 - [x] Script anpassen, sodass unendlich viel gecutted werden kann.
 - [x] bug: If one video_name consists exact part of another video_name, renaming does not work properly (need to change startswith prefix)
 - [x] spaltennamen ändern und im Script anpassen durch_standbild_ersetzen
-- [ ] spaltennamen ändern und im Script anpassen cut_and_keep
+- [x] spaltennamen ändern und im Script anpassen cut_and_keep + small copy test
 - [ ] alle scripte testen
 - [ ] restructure ur scripts to one exe
 - [ ] delete the nebenprodukte
