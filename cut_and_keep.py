@@ -14,6 +14,7 @@ import pandas as pd
 import subprocess
 import os
 import shutil
+import re
 
 
 # In[ ]:
@@ -90,8 +91,6 @@ def create_folder(folder_name):
 # In[ ]:
 
 
-# maybe needs to be encoded too! 
-
 def cut_in_2_pieces(input_file, timestamp, head_output, tail_output):
     
     # -ss = ab dort; -to = bis dort
@@ -104,6 +103,63 @@ def cut_in_2_pieces(input_file, timestamp, head_output, tail_output):
         subprocess.run(tail_cmd, check=True)
     except subprocess.CalledProcessError as e:
         print(f"An error occurred: {e}")
+
+
+# In[ ]:
+
+
+def get_columns_to_divide(df):
+    pattern = re.compile(r'^teilen\d+_[a-z]+$')
+    dummy = []
+    for column in df.columns:
+        if pattern.match(column):
+            dummy.append(column)
+    return dummy
+
+
+# In[ ]:
+
+
+def calculate_time(*timestamps,kind="addition"):
+    """
+    Calculate time based on the given timestamps and operation type.
+
+    Parameters:
+    - timestamps (str): Variable number of timestamps.
+    - kind (str): The operation type. Allowed values are 'addition' and 'subtraction'.
+    """
+    
+    #addition
+    if kind == "addition":
+        stamp1 = None
+        for timestamp in timestamps:
+        
+        # calculate timestamp
+            if stamp1 is None:
+                stamp1 = timestamp
+
+            else:
+                timedelta = stamp1 + pd.to_timedelta(timestamp)
+                dummy_date = pd.Timestamp('1900-01-01')
+                new_timestamp = dummy_date + timedelta
+                timestamp = new_timestamp.strftime('%H:%M:%S.%f')[:-3]
+                return timestamp
+    
+    #subtraction
+    elif kind == "subtraction":
+        stamp1 = None
+        for timestamp in timestamps:
+        
+        # calculate timestamp
+            if stamp1 is None:
+                stamp1 = timestamp
+
+            else:
+                timedelta = stamp1 - pd.to_timedelta(timestamp)
+                dummy_date = pd.Timestamp('1900-01-01')
+                new_timestamp = dummy_date + timedelta
+                timestamp = new_timestamp.strftime('%H:%M:%S.%f')[:-3]
+                return timestamp        
 
 
 # In[ ]:
@@ -122,67 +178,43 @@ video_schnitt_df = clean_the_data(video_schnitt_df)
 # In[ ]:
 
 
-# cut the video first if needed
-
-
-# In[ ]:
-
-
-# videos need to be in same directory with python script
-try:
-    for idx, video_name in video_schnitt_df["dateiname"].items():
-
-        if video_schnitt_df["schnitt_setzen_bei"][idx] == "nan":
-            continue
-
-        # define arguments
-        output_file = f"{video_name.split('.')[0]}_ohne_start_ende_cut_and_keep.mp4"
-        cut_head = video_schnitt_df["vorne_abschneiden_bis"][idx]
-        cut_tail = video_schnitt_df["hinten_abschneiden_ab"][idx]
-
-        #building logic when just to cut head or tail
-        if cut_head == "nan":
-            cut_head = "00:00:00"
-        if cut_tail == "nan":
-            cut_tail = get_video_duration(video_name)
-    
-        print("input name:",video_name,"Schnittpunkte:", cut_head, cut_tail)
-        cut_head_tail(video_name, output_file, cut_head, cut_tail)
-except Exception as error:
-    print("An error occurred:", error)
-
-
-# In[ ]:
-
-
 # cut and keep the pieces
 
 
 # In[ ]:
 
 
-try:
-    for idx, video_name in video_schnitt_df["dateiname"].items():
+#loop through videonames and then through columns to divide
+for row, video_name in video_schnitt_df["dateiname"].items():
+    columns_to_divide = get_columns_to_divide(video_schnitt_df)
+    for col_num,col in enumerate(video_schnitt_df[columns_to_divide]):
         
-        if video_schnitt_df["schnitt_setzen_bei"][idx] == "nan":
-            continue
+        #rule when there is more then one division
+        if video_schnitt_df[col][row] != "nan":
+            if col_num > 0:
+                input_file = f"{video_name.split('.')[0]}_tail{col_num}.mp4"
+                timestamp1 = video_schnitt_df[columns_to_divide[col_num -1]][row]
+                timestamp2 = video_schnitt_df[col][row]
+                timestamp = calculate_time(timestamp2,timestamp1,kind="subtraction")
+                head_output = f"{video_name.split('.')[0]}_mitte{col_num+ 1}.mp4"
+                tail_output = f"{video_name.split('.')[0]}_tail{col_num +1}.mp4"
+                print("PRINT: timestamps before calculation:",timestamp1,timestamp2)
+                print("PRINT: all Variables further cut:",input_file,timestamp,head_output,tail_output)
 
-        head_output = f"{video_name.split('.')[0]}_head_endprodukt.mp4"
-        tail_output = f"{video_name.split('.')[0]}_tail_endprodukt.mp4"
+                cut_in_2_pieces(input_file,timestamp,head_output,tail_output)
+                os.remove(input_file)
+            else:
 
-        # calculate timestamp
-        timedelta = video_schnitt_df["schnitt_setzen_bei"][idx] - pd.to_timedelta(video_schnitt_df["vorne_abschneiden_bis"][idx])
-        dummy_date = pd.Timestamp('1900-01-01')
-        new_timestamp = dummy_date + timedelta
-        timestamp = new_timestamp.strftime('%H:%M:%S.%f')[:-3]
+                #define all variables needed
+                input_file = video_name
+                timestamp = video_schnitt_df[col][row]
+                head_output = f"{video_name.split('.')[0]}_head{col_num +1}.mp4"
+                tail_output = f"{video_name.split('.')[0]}_tail{col_num +1}.mp4"
+                
+                print("all variables:",input_file,timestamp,head_output,tail_output)
 
-        input_file = f"{video_name.split('.')[0]}_ohne_start_ende_cut_and_keep.mp4"
-        
-        print("input:", input_file, "stamp",timestamp)
-        cut_in_2_pieces(input_file,timestamp,head_output,tail_output)
-
-except Exception as error:
-    print("An error occurred:", error)
+                #start seperation
+                cut_in_2_pieces(input_file,timestamp,head_output,tail_output)
 
 
 # In[ ]:
@@ -215,8 +247,6 @@ for video_name in video_schnitt_df["dateiname"]:
 
 
 for filename in os.listdir():
-    if filename.endswith("endprodukt.mp4"):
+    if filename.endswith("mp4") and filename not in original_video_names:
         shutil.move(filename,path_folder_endprodukte)
-    elif filename.endswith("mp4") and filename not in original_video_names:
-        shutil.move(filename,path_folder_script_output)
 
