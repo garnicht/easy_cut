@@ -20,6 +20,9 @@ The goal is to reduce the amount of time my stakeholder needs to manually cut hi
 - [x] bug: If one video_name consists exact part of another video_name, renaming does not work properly (need to change startswith prefix)
 - [x] spaltennamen ändern und im Script anpassen durch_standbild_ersetzen
 - [x] spaltennamen ändern und im Script anpassen cut_and_keep + small copy test
+- [x] combine script one and two
+- [ ] solve the special case
+- [ ] test this script
 - [ ] alle scripte testen
 - [ ] restructure ur scripts to one exe
 - [ ] delete the nebenprodukte
