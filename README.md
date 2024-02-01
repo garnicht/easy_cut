@@ -21,8 +21,10 @@ The goal is to reduce the amount of time my stakeholder needs to manually cut hi
 - [x] spaltennamen ändern und im Script anpassen durch_standbild_ersetzen
 - [x] spaltennamen ändern und im Script anpassen cut_and_keep + small copy test
 - [x] combine script one and two
-- [ ] solve the special case
-- [ ] test this script
+- [x] solve the special case
+- [x] test this script
+- [ ] edit combined script so renaming also doesnt fail there (also think about part6 error, where the youngest vid is also a part one)
+- [ ] add last script 
 - [ ] alle scripte testen
 - [ ] restructure ur scripts to one exe
 - [ ] delete the nebenprodukte
