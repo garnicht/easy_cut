@@ -23,14 +23,18 @@ The goal is to reduce the amount of time my stakeholder needs to manually cut hi
 - [x] combine script one and two
 - [x] solve the special case
 - [x] test this script
-- [ ] edit combined script so renaming also doesnt fail there (also think about part6 error, where the youngest vid is also a part one)
-- [ ] add last script 
-- [ ] alle scripte testen
-- [ ] restructure ur scripts to one exe
+- [x] edit combined script so renaming also doesnt fail there (also think about part6 error, where the youngest vid is also a part one)
+- [x] add last script 
+- [x] alle scripte copy-testen
+- [x] rename the endprodukte to original video_name
+- [x] copy-test the .py script
+- [ ] real test the .py script
+
+
 - [ ] delete the nebenprodukte
 - [ ] improve performance with ignoring the cut of odd parts 
 - [ ] bug: when script standbild_ersetzen is runned, all original_videos not in csv (was an special csv) also got removed into script_output folder
-- [ ] rename the endprodukte to original video_name
+
 - [ ] adding pauses into video
 - [ ] change the rename system of cut_things_out to also use regular expression (higher consistency)
 - [ ] performance update -> switch part1 from cut_things_out with merged_start from standbild_ersetzen
