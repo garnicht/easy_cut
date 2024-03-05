@@ -28,14 +28,14 @@ The goal is to reduce the amount of time my stakeholder needs to manually cut hi
 - [x] alle scripte copy-testen
 - [x] rename the endprodukte to original video_name
 - [x] copy-test the .py script
+- [ ] adding pauses into video
+- [ ] test extrem values (pause at start of video and pause at end of video)
 - [ ] real test the .py script
-
-
 - [ ] delete the nebenprodukte
 - [ ] improve performance with ignoring the cut of odd parts 
 - [ ] bug: when script standbild_ersetzen is runned, all original_videos not in csv (was an special csv) also got removed into script_output folder
 
-- [ ] adding pauses into video
+
 - [ ] change the rename system of cut_things_out to also use regular expression (higher consistency)
 - [ ] performance update -> switch part1 from cut_things_out with merged_start from standbild_ersetzen
 - [ ] performance update -> looks like It may be possible to just copy in durch_standbild_ersetzen
