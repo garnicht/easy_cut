@@ -29,6 +29,7 @@ The goal is to reduce the amount of time my stakeholder needs to manually cut hi
 - [x] rename the endprodukte to original video_name
 - [x] copy-test the .py script
 - [x] adding pauses into video
+- [x] file handling after last script
 - [ ] test extrem values (pause at start of video and pause at end of video)
 - [ ] real test the .py script
 - [ ] delete the nebenprodukte
