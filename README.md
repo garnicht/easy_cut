@@ -30,7 +30,13 @@ The goal is to reduce the amount of time my stakeholder needs to manually cut hi
 - [x] copy-test the .py script
 - [x] adding pauses into video
 - [x] file handling after last script
+- [x] copy test some variations
+- [x] raising from left variations copy-tested
+- [x] solo script variatons copy-tested
+- [ ] raising from right copy-tested
+- [ ] random variations copy-tested
 - [ ] test extrem values (pause at start of video and pause at end of video)
+- [ ] pause at start of video doesnt work -> include a test to stop script OR force the 00:00:00 to be 00:00:00.100 s
 - [ ] real test the .py script
 - [ ] delete the nebenprodukte
 - [ ] improve performance with ignoring the cut of odd parts 
