@@ -3,7 +3,7 @@
 
 # # Import libs and define functions
 
-# In[ ]:
+# In[2]:
 
 
 import pandas as pd
@@ -1546,6 +1546,13 @@ for row, video_name in video_schnitt_df["dateiname"].items():
 
 
 os.remove("dummy.txt")
+
+
+# In[3]:
+
+
+if os.path.exists("script_output"):
+    shutil.rmtree("script_output")
 
 
 # In[ ]:
