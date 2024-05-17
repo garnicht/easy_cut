@@ -1,55 +1,24 @@
 # What is this repo for? 
-
 The goal is to reduce the amount of time my stakeholder needs to manually cut his videos. This is why he asked me to write a script that needs to do the following: 
-- read a list full of names and timestamps 
+- read a list full of videonames and timestamps 
 - execute different cut-commands with the help of ffmpeg 
-- store the end product, side products and original videos at the right place
+- store the end products, side products and original videos at the right place
 
-# Next steps
-- [x] testing the existing loops
-- [x] create concat function to concat the merged video with cutted_original
-- [x] write for loop to get through the list and concatenate all the existing videos
-- [x] create a loop to remove and concat videos
-- [x] create a cut into pieces function
-- [x] edit the cut_the_videos so all endprodukte move to the right folderand maybe are renamed
-- [x] improve all the .py files to also accept the last cut timestamp. Right now there still needs some manuel manipulation to be done
-- [x] csv soll kein input sein, take csv in directory
-- [x] bug: part10 was not created, script ended at part9, end is missing some minutes or seconds
-- [x] spaltennamen ändern und im Script anpassen cut_things_out
-- [x] Script anpassen, sodass unendlich viel gecutted werden kann.
-- [x] bug: If one video_name consists exact part of another video_name, renaming does not work properly (need to change startswith prefix)
-- [x] spaltennamen ändern und im Script anpassen durch_standbild_ersetzen
-- [x] spaltennamen ändern und im Script anpassen cut_and_keep + small copy test
-- [x] combine script one and two
-- [x] solve the special case
-- [x] test this script
-- [x] edit combined script so renaming also doesnt fail there (also think about part6 error, where the youngest vid is also a part one)
-- [x] add last script 
-- [x] alle scripte copy-testen
-- [x] rename the endprodukte to original video_name
-- [x] copy-test the .py script
-- [x] adding pauses into video
-- [x] file handling after last script
-- [x] copy test some variations
-- [x] raising from left variations copy-tested
-- [x] solo script variatons copy-tested
-- [ ] raising from right copy-tested
-- [ ] random variations copy-tested
-- [ ] test extrem values (pause at start of video and pause at end of video)
-- [ ] pause at start of video doesnt work -> include a test to stop script OR force the 00:00:00 to be 00:00:00.100 s
-- [ ] real test the .py script
-- [ ] delete the nebenprodukte
-- [ ] improve performance with ignoring the cut of odd parts 
-- [ ] bug: when script standbild_ersetzen is runned, all original_videos not in csv (was an special csv) also got removed into script_output folder
-
-
-- [ ] change the rename system of cut_things_out to also use regular expression (higher consistency)
+# Next possible steps
+- [ ] QOL -> remove bug that causes the need of 3 free columns in cut things out. 
+- [ ] in general improve the older cut things out logic with newer code logic
+- [ ] QOL -> rename endprodukt nach cut and keep from head, mitte(1-X) and tail to -> part1-X
+- [ ] performance update -> ignore the cut of odd parts in cut_things_out
 - [ ] performance update -> switch part1 from cut_things_out with merged_start from standbild_ersetzen
 - [ ] performance update -> looks like It may be possible to just copy in durch_standbild_ersetzen
-- [ ] delete dummy.txt in the end
 
-# What are the different executions / files? 
-- cut_and_keep -> this script allows to cut the videos at given timestamp and saves both outputs 
-- cut_things_videos -> this script allows to cut at two specified points during the video. In the end som parts should be kept and concatted together and some parts should be deleted
-- durch_standbild_ersetzen -> this file gives my stakeholder the opportunity to replace a specified range in the video with a given image and keeps the audio. 
-- cut_the_videos -> was the first trial to combine all of the scripts above. Fatally failed :D needs to be adjusted and thought through again.  
+# How to use the combined_all.py file?
+- Combined_all.py has to be in same directory as video files and the .csv with the timestamps 
+- The .csv need to have the columns and structure like the csv in the backup directory
+- timestamps need to have following format: "hh:mm:ss" or "hh:mm:ss.msmsms"
+- the columns "rausschneiden1_ab" etc. need to have 3 empty columns in the end
+    - script woun't work without that preparation -> error code is gonna give information then
+- no Umlaute like Ä Ü Ö in video names 
+- all commands beside standbild ersetzen, are infinitely expandable when using given column structure
+- when script is finished, all edited videos are found in new folder called "endprodukte"
+- if a video needs to be divided into pieces, the endproducts are like this: video_name_head -> video_name_mitte(1-X) ... -> video_name_tail
